@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DEBUG QUEST — LKPD Interaktif Informatika Kelas VIII</title>
+<meta name="description" content="LKPD interaktif Debugging, Refactoring, dan Etika AI untuk kelas VIII Fase D" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fira+Code:wght@400;500&family=OpenDyslexic&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<noscript>
+  <div style="padding:2rem;background:#F87171;color:#fff;text-align:center;font-family:sans-serif;">
+    <h2>Aplikasi ini membutuhkan JavaScript (This app requires JavaScript)</h2>
+    <p>Aktifkan JavaScript di browser kamu, lalu muat ulang halaman ini.</p>
+  </div>
+</noscript>
+
+<!-- ===== HEADER ===== -->
+<header id="app-header">
+  <div class="header-left">
+    <button id="btn-home" class="btn-icon" aria-label="Peta Misi (Mission Map)" title="Peta Misi">🏠</button>
+    <div class="logo">
+      <span class="logo-bug">🐛</span>
+      <span class="logo-text">DEBUG QUEST</span>
+    </div>
+  </div>
+  <div class="header-center">
+    <div class="progress-block">
+      <div class="progress-label">
+        <span>XP (Experience Points): <strong id="xp-current">0</strong> / <strong id="xp-max">1200</strong></span>
+        <span>Level (Level): <strong id="level-current">0</strong> / <strong>8</strong></span>
+      </div>
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="save-indicator" class="save-indicator" title="Autosave">Tersimpan ✓</span>
+    <button id="btn-bahasa" class="btn-icon" aria-label="Bahasa / Language" title="Bahasa / Language">🌐</button>
+    <button id="btn-akses" class="btn-icon" aria-label="Aksesibilitas" title="Aksesibilitas">⚙️</button>
+    <button id="btn-glosarium" class="btn-icon" aria-label="Glosarium" title="Glosarium">📖</button>
+  </div>
+</header>
+
+<!-- ===== PANEL BAHASA ===== -->
+<div id="panel-bahasa" class="panel" hidden>
+  <h3>Bahasa / Language</h3>
+  <label><input type="radio" name="bahasa" value="ID+EN" checked /> Dwibahasa (Bilingual)</label>
+  <label><input type="radio" name="bahasa" value="ID" /> Indonesia saja (Indonesian only)</label>
+  <label><input type="radio" name="bahasa" value="EN" /> Inggris saja (English only)</label>
+</div>
+
+<!-- ===== PANEL AKSESIBILITAS ===== -->
+<div id="panel-akses" class="panel" hidden>
+  <h3>Aksesibilitas (Accessibility)</h3>
+  <label>Ukuran Teks (Text Size): <input type="range" id="set-text-size" min="80" max="150" value="100" /> <span id="text-size-val">100%</span></label>
+  <label><input type="checkbox" id="set-kontras" /> Mode Kontras Tinggi (High Contrast Mode)</label>
+  <label><input type="checkbox" id="set-disleksia" /> Font Ramah Disleksia (Dyslexia-Friendly Font)</label>
+  <label><input type="checkbox" id="set-suara" /> Suara Umpan Balik (Sound Feedback)</label>
+  <label><input type="checkbox" id="set-tts" /> Baca Soal dengan Suara (Text-to-Speech)</label>
+  <label><input type="checkbox" id="set-timer" /> Timer per Level (tidak memengaruhi skor)</label>
+  <label><input type="checkbox" id="set-animasi" checked /> Animasi (Animation)</label>
+  <button id="btn-reset-progres" class="btn btn-danger">Reset Progres (Reset Progress)</button>
+</div>
+
+<!-- ===== MAIN ===== -->
+<main id="app-main">
+
+  <!-- LAYAR PEMBUKA -->
+  <section id="layar-pembuka" class="layar">
+    <div class="hero">
+      <div class="hero-bug">🐛</div>
+      <h1 class="hero-title">DEBUG QUEST</h1>
+      <h2 class="hero-sub">MISI PERBAIKAN PROGRAM (Mission: Fix the Program)</h2>
+      <p class="hero-desc">LKPD Interaktif — Informatika Kelas VIII / Fase D<br/>Debugging, Refactoring, dan Etika AI<br/>Konteks: Perulangan dan Pola (Loops & Patterns)</p>
+      <blockquote class="hero-quote">
+        “Program yang dapat berjalan belum tentu merupakan program yang baik. AI dapat membantu proses memperbaiki, tetapi keputusan akhir tetap harus berasal dari pemahaman dan pertimbangan murid.”
+      </blockquote>
+      <div class="hero-btns">
+        <button id="btn-mulai" class="btn btn-primary btn-lg">MULAI (Start)</button>
+        <button id="btn-lanjut" class="btn btn-secondary btn-lg" hidden>LANJUTKAN PERMAINAN (Continue)</button>
+      </div>
+      <div class="hero-credits">
+        Kurikulum Merdeka · Pembelajaran Mendalam · UDL · Computational Thinking
+      </div>
+    </div>
+  </section>
+
+  <!-- LAYAR IDENTITAS -->
+  <section id="layar-identitas" class="layar" hidden>
+    <div class="card card-form">
+      <h2>Identitas Penjelajah (Explorer Identity)</h2>
+      <p class="muted">Isi data dirimu dulu ya. Data ini dipakai untuk sertifikat di akhir.</p>
+      <label class="field">
+        <span>Nama Lengkap (Full Name)</span>
+        <input type="text" id="input-nama" placeholder="Tulis namamu di sini..." maxlength="60" />
+      </label>
+      <label class="field">
+        <span>Kelas (Class)</span>
+        <input type="text" id="input-kelas" placeholder="Contoh: VIII A" maxlength="20" />
+      </label>
+      <div class="form-actions">
+        <button id="btn-identitas-lanjut" class="btn btn-primary">LANJUT KE PETA MISI (Go to Mission Map)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LAYAR PETA MISI -->
+  <section id="layar-peta" class="layar" hidden>
+    <div class="peta-header">
+      <h2>PETA MISI (Mission Map)</h2>
+      <p class="muted">Pilih level yang terbuka. Selesaikan satu per satu untuk membuka level berikutnya.</p>
+      <label class="toggle-no-ai">
+        <input type="checkbox" id="toggle-tanpa-ai" />
+        Mode "Belajar Tanpa AI" (Learn Without AI)
+      </label>
+    </div>
+    <div class="peta-grid" id="peta-grid"><!-- diisi JS --></div>
+    <div class="peta-actions">
+      <button id="btn-peta-konsep" class="btn btn-secondary">🗺️ Lihat Peta Konsep (Concept Map)</button>
+      <button id="btn-peta-glosarium" class="btn btn-secondary">📖 Buka Glosarium (Glossary)</button>
+    </div>
+  </section>
+
+  <!-- LAYAR LEVEL 1 -->
+  <section id="layar-level1" class="layar" hidden>
+    <div class="level-head">
+      <h2>LEVEL 1 — POLA &amp; PERULANGAN <span class="en">(Pattern Pulse)</span></h2>
+      <div class="level-meta"><span id="l1-progress">Soal 1 / 10</span> · <span id="l1-score">Skor: 0</span></div>
+    </div>
+    <div class="progress-dots" id="l1-dots"></div>
+    <div id="l1-card" class="card"></div>
+    <div id="l1-feedback" class="feedback" hidden></div>
+  </section>
+
+  <!-- LAYAR LEVEL 2 -->
+  <section id="layar-level2" class="layar" hidden>
+    <div class="level-head">
+      <h2>LEVEL 2 — PEMBURU BUG <span class="en">(Bug Hunter)</span></h2>
+      <div class="level-meta"><span id="l2-progress">Soal 1 / 8</span> · <span id="l2-score">Skor: 0</span></div>
+    </div>
+    <div class="progress-dots" id="l2-dots"></div>
+    <div id="l2-card" class="card"></div>
+    <div id="l2-feedback" class="feedback" hidden></div>
+  </section>
+
+  <!-- LAYAR LEVEL 3 -->
+  <section id="layar-level3" class="layar" hidden>
+    <div class="level-head">
+      <h2>LEVEL 3 — PELACAK PERULANGAN <span class="en">(Trace Runner)</span></h2>
+      <div class="level-meta"><span id="l3-progress">Tabel 1 / 2</span></div>
+    </div>
+    <div id="l3-card" class="card"></div>
+  </section>
+
+  <!-- LAYAR LEVEL 4 -->
+  <section id="layar-level4" class="layar" hidden>
+    <div class="level-head">
+      <h2>LEVEL 4 — STASIUN SORTIR <span class="en">(Sorting Station)</span></h2>
+      <p class="muted">Seret kartu ke keranjang yang tepat, atau ketuk kartu lalu ketuk keranjang (tap-to-place).</p>
+    </div>
+    <div class="sortir-area">
+      <div class="kartu-pool" id="l4-pool"></div>
+      <div class="keranjang-grid" id="l4-baskets"></div>
+    </div>
+    <div class="form-actions">
+      <button id="btn-l4-cek" class="btn btn-primary">PERIKSA JAWABAN (Check Answers)</button>
+    </div>
+    <div id="l4-feedback" class="feedback" hidden></div>
+  </section>
+
+  <!-- LAYAR LEVEL 5 -->
+  <section id="layar-level5" class="layar" hidden>
+    <div class="level-head">
+      <h2>LEVEL 5 — LAB REFACTORING <span class="en">(Refactor Lab)</span></h2>
+    </div>
+    <div id="l5-card" class="card"></div>
+  </section>
+
+  <!-- LAYAR LEVEL 6 -->
+  <section id="layar-level6" class="layar" hidden>
+    <div class="level-head">
+      <h2>LEVEL 6 — DILEMA ETIKA AI <span class="en">(AI Ethics Dilemma)</span></h2>
+      <div class="level-meta"><span id="l6-progress">Skenario 1 / 8</span></div>
+    </div>
+    <div id="l6-card" class="card"></div>
+    <div id="l6-feedback" class="feedback" hidden></div>
+    <div id="l6-deklarasi" class="card" hidden></div>
+  </section>
+
+  <!-- LAYAR LEVEL 7 -->
+  <section id="layar-level7" class="layar" hidden>
+    <div class="level-head">
+      <h2>LEVEL 7 — BOS TERAKHIR <span class="en">(Final Boss)</span></h2>
+      <p class="muted">Misi Perbaikan Program (Mission: Fix the Program)</p>
+    </div>
+    <div id="l7-card" class="card"></div>
+  </section>
+
+  <!-- LAYAR LEVEL 8 -->
+  <section id="layar-level8" class="layar" hidden>
+    <div class="level-head">
+      <h2>LEVEL 8 — LAPORAN &amp; REFLEKSI <span class="en">(Report &amp; Reflection)</span></h2>
+    </div>
+    <div class="card">
+      <h3>8A. Log Debugging (Debug Log)</h3>
+      <p class="muted">Catat setiap bagian yang kamu periksa selama proses debugging.</p>
+      <div class="table-wrap">
+        <table id="log-table" class="log-table">
+          <thead><tr>
+            <th>No.</th><th>Bagian yang Dicek</th><th>Hasil yang Diharapkan</th>
+            <th>Hasil Aktual</th><th>Dugaan Penyebab</th><th>Perubahan / Uji</th><th>Hasil Setelah Uji</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="form-actions">
+        <button id="btn-log-tambah" class="btn btn-secondary btn-sm">+ Tambah Baris (Add Row)</button>
+        <button id="btn-log-hapus" class="btn btn-secondary btn-sm">– Hapus Baris (Remove Row)</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>8B. Deklarasi Penggunaan AI (AI Usage Declaration)</h3>
+      <div class="field"><span>Saya menggunakan AI selama tugas ini. (I used AI during this task.)</span>
+        <div class="radio-row">
+          <label><input type="radio" name="ai-ya" value="Ya" /> Ya (Yes)</label>
+          <label><input type="radio" name="ai-ya" value="Tidak" /> Tidak (No)</label>
+        </div>
+      </div>
+      <label class="field"><span>AI digunakan untuk membantu pada bagian... (AI was used to help with...)</span><textarea id="ai-1" rows="2"></textarea></label>
+      <label class="field"><span>Saran AI yang saya gunakan adalah... (The AI suggestion I used was...)</span><textarea id="ai-2" rows="2"></textarea></label>
+      <label class="field"><span>Cara saya memeriksa saran tersebut... (How I verified the suggestion...)</span><textarea id="ai-3" rows="2"></textarea></label>
+      <label class="field"><span>Bagian yang saya kerjakan sendiri... (What I worked on myself...)</span><textarea id="ai-4" rows="2"></textarea></label>
+      <label class="field"><span>Hal yang saya pelajari dari proses ini... (What I learned from this process...)</span><textarea id="ai-5" rows="2"></textarea></label>
+    </div>
+    <div class="card">
+      <h3>8C. Pernyataan Tanggung Jawab (Statement of Responsibility)</h3>
+      <label class="checkbox-big">
+        <input type="checkbox" id="ai-tanggung" />
+        Saya menyatakan bahwa saya memahami solusi yang saya kumpulkan, saya telah memeriksa hasil program, dan saya mencatat penggunaan AI secara jujur sesuai proses belajar yang saya lakukan.
+      </label>
+    </div>
+    <div class="card">
+      <h3>8D. Refleksi Murid (Student Reflection)</h3>
+      <div id="refleksi-list"></div>
+    </div>
+    <div class="card">
+      <h3>8E. Checklist Sebelum Mengumpulkan (Checklist Before Submitting)</h3>
+      <div id="checklist-list"></div>
+    </div>
+    <div class="form-actions">
+      <button id="btn-level8-selesai" class="btn btn-primary btn-lg">SELESAI &amp; LIHAT SERTIFIKAT (Finish &amp; View Certificate)</button>
+    </div>
+  </section>
+
+  <!-- LAYAR SERTIFIKAT -->
+  <section id="layar-sertifikat" class="layar" hidden>
+    <div id="sertifikat" class="sertifikat">
+      <div class="sertifikat-inner">
+        <div class="sertifikat-kop">SERTIFIKAT PENYELESAIAN (Certificate of Completion)</div>
+        <div class="sertifikat-judul">DEBUG QUEST</div>
+        <div class="sertifikat-sub">LKPD Interaktif — Debugging, Refactoring, dan Etika AI</div>
+        <div class="sertifikat-diberikan">Diberikan kepada (Awarded to):</div>
+        <div class="sertifikat-nama" id="sert-nama">—</div>
+        <div class="sertifikat-kelas" id="sert-kelas">—</div>
+        <div class="sertifikat-tanggal" id="sert-tanggal">—</div>
+        <div class="sertifikat-stats">
+          <div><span>Total XP</span><strong id="sert-xp">0</strong></div>
+          <div><span>Total Bintang (Stars)</span><strong id="sert-bintang">0 / 24</strong></div>
+          <div><span>Lencana (Badges)</span><strong id="sert-badge">0 / 8</strong></div>
+        </div>
+        <div class="sertifikat-badges" id="sert-badges"></div>
+        <div class="sertifikat-pesan">
+          “Jangan takut menemukan bug. Bug adalah petunjuk bahwa ada sesuatu yang perlu dipahami lebih dalam.
+          Saat menggunakan AI, gunakan untuk membantu berpikir — bukan untuk menggantikan berpikir.”
+        </div>
+        <div class="sertifikat-ttd">
+          <div>Guru Informatika (Informatics Teacher)</div>
+          <div class="sertifikat-ttd-line"></div>
+          <div>Kurikulum Merdeka · Fase D · Kelas VIII</div>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions no-print">
+      <button id="btn-cetak" class="btn btn-primary">🖨️ CETAK / SIMPAN PDF (Print / Save PDF)</button>
+      <button id="btn-unduh" class="btn btn-secondary">⬇️ UNDUH JAWABAN (.txt)</button>
+      <button id="btn-salin" class="btn btn-secondary">📋 SALIN RINGKASAN (Copy Summary)</button>
+      <button id="btn-kembali-peta" class="btn btn-secondary">← Kembali ke Peta Misi</button>
+    </div>
+  </section>
+
+  <!-- LAYAR GLOSARIUM -->
+  <section id="layar-glosarium" class="layar" hidden>
+    <div class="level-head">
+      <h2>GLOSARIUM (Glossary)</h2>
+      <p class="muted">Cari istilah penting di sini.</p>
+    </div>
+    <input type="search" id="cari-glosarium" class="search-input" placeholder="Cari istilah... (Search term...)" />
+    <div id="glosarium-list" class="glosarium-list"></div>
+    <div class="form-actions"><button id="btn-glosarium-kembali" class="btn btn-secondary">← Kembali (Back)</button></div>
+  </section>
+
+  <!-- LAYAR PETA KONSEP -->
+  <section id="layar-peta-konsep" class="layar" hidden>
+    <div class="level-head"><h2>PETA KONSEP (Concept Map)</h2></div>
+    <div class="konsep-alur" id="konsep-alur"></div>
+    <div class="form-actions"><button id="btn-konsep-kembali" class="btn btn-secondary">← Kembali (Back)</button></div>
+  </section>
+
+  <!-- LAYAR MODE GURU -->
+  <section id="layar-guru" class="layar" hidden>
+    <div class="level-head"><h2>MODE GURU (Teacher Mode)</h2></div>
+    <div class="card">
+      <h3>Ringkasan Jawaban (Answer Key Summary)</h3>
+      <div id="guru-jawaban"></div>
+    </div>
+    <div class="form-actions">
+      <button id="btn-guru-buka" class="btn btn-primary">Buka Semua Level (Unlock All Levels)</button>
+      <button id="btn-guru-reset" class="btn btn-danger">Reset Semua Data (Reset All Data)</button>
+      <button id="btn-guru-tutup" class="btn btn-secondary">Tutup (Close)</button>
+    </div>
+  </section>
+
+</main>
+
+<footer id="app-footer" class="no-print">
+  LKPD Informatika Kelas 8 · Debugging, Refactoring, dan Etika AI · © 2026 SMP Negeri 19 Kota Bekasi
+</footer>
+
+<!-- TOAST -->
+<div id="toast" class="toast" hidden></div>
+
+<!-- MODAL -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-box">
+    <h3 id="modal-title">Konfirmasi</h3>
+    <p id="modal-msg"></p>
+    <div id="modal-extra"></div>
+    <div class="modal-actions">
+      <button id="modal-cancel" class="btn btn-secondary">Batal (Cancel)</button>
+      <button id="modal-ok" class="btn btn-danger">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFETTI -->
+<canvas id="confetti-canvas"></canvas>
+
+<script src="script.js"></script>
+</body>
+</html>
